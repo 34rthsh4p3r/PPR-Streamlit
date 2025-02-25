@@ -27,9 +27,8 @@ def home_page():
     st.title("PPR - Paleo Profile Randomizer")
     st.markdown("""
         [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/)
-        ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+        [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
             """)
-    st.markdown("---")
     st.markdown("""
 
 PPR (Paleo Profile Randomizer) is a Python application designed to generate synthetic paleoecological profile data, simulating the information obtained from sediment cores. This tool allows users to explore how different environmental and geological factors influence the composition of sediment records. PPR is valuable for educational purposes, data analysis testing, hypothesis generation, and model development in paleoecology.
