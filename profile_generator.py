@@ -8,36 +8,23 @@ matplotlib.use('Agg')  # Use Agg backend to save plots
 class ProfileGenerator:
     def __init__(self):
         self.custom_ranges = {}  # Store custom ranges
-        self.zones = [1, 2, 3, 4, 5] # Define possible zones
+        #self.zones = [1, 2, 3, 4, 5] #Removed, using dynamic zones now
 
-    def generate_unique_zone_percentages(self):
-        """Generates 5 unique random numbers that sum to 100."""
-        while True:
-            z1 = random.uniform(10, 20)
-            z2 = random.uniform(25, 60)
-            z3 = random.uniform(30, 60)
-            z4 = random.uniform(20, 40)
-            z5 = random.uniform(5, 10)
-            total = round(z1 + z2 + z3 + z4 + z5, 2)
-            if  100-0.02 <= total <= 100+0.02:  #check the rounding
-                nums = [z1, z2, z3, z4, z5]
-                if len(set(nums)) == 5: #Check for uniqueness
-                    return nums
-
-    def assign_depths_to_zones(self, depth, zone_percentages):
+    def assign_depths_to_zones(self, depth_values, zone_percentages):
         """Assigns depths to zones based on percentages."""
         zones = {}
         current_depth = 0
         for i, percentage in enumerate(zone_percentages):
-            zone_end = current_depth + (depth * percentage / 100)
-            zones[i + 1] = (current_depth, float(round(zone_end / 2) * 2))
-            current_depth = float(round(zone_end / 2) * 2)
+            zone_end_index = int(len(depth_values) * (sum(zone_percentages[:i+1]) / 100))  # Calculate index
+            zone_end = depth_values[min(zone_end_index, len(depth_values) -1)] #Get value for the index, prevent error
+
+            zones[i + 1] = (current_depth, zone_end)
+            current_depth = zone_end
         return zones
 
-    def generate_data(self, depth, zones, base_type, env_type):
+    def generate_data(self, depth_values, zones, base_type, env_type):
         """Generates the data for the table."""
         data = []
-        depth_values = list(range(0, depth + 1, 2))
 
         for d in depth_values:
             zone_num = None
@@ -59,7 +46,7 @@ class ProfileGenerator:
             for param in all_params:
                 if param in ranges:
                     min_val, max_val, trend = ranges[param]
-                    row[param] = self.generate_value(d, depth, min_val, max_val, trend, param, zone_num, zones, data)
+                    row[param] = self.generate_value(d, depth_values[-1], min_val, max_val, trend, param, zone_num, zones, data)  # depth_values[-1] is max_depth
                 else:
                     row[param] = 0
 
@@ -70,7 +57,7 @@ class ProfileGenerator:
                     ranges["OM"][0], ranges["OM"][1], ranges["OM"][2],
                     ranges["CC"][0], ranges["CC"][1], ranges["CC"][2],
                     ranges["IM"][0], ranges["IM"][1], ranges["IM"][2],
-                    d, depth
+                    d, depth_values[-1] #max_depth
                 )
             if "Clay" not in ranges:
                 row["Clay"], row["Silt"], row["Sand"] = 0, 0, 0
@@ -79,7 +66,7 @@ class ProfileGenerator:
                     ranges["Clay"][0], ranges["Clay"][1], ranges["Clay"][2],
                     ranges["Silt"][0], ranges["Silt"][1], ranges["Silt"][2],
                     ranges["Sand"][0], ranges["Sand"][1], ranges["Sand"][2],
-                    d, depth
+                    d, depth_values[-1] #max_depth
                 )
             data.append(row)
         return data
@@ -125,7 +112,7 @@ class ProfileGenerator:
             fluctuation = (max_val - min_val) * 0.8  # 80% fluctuation
             center = (min_val + max_val) / 2
             return round(random.uniform(center - fluctuation, center + fluctuation), 2)
-            
+
         elif trend == "SL": #StagnantLow: first stagnant, then decreasing
             midpoint_ratio = random.uniform(0.4, 0.6)
             midpoint = depth * midpoint_ratio
@@ -189,7 +176,7 @@ class ProfileGenerator:
                 # Increasing part
                 normalized_zone_depth = (d - midpoint) / (zones[zone_num][1] - midpoint) if (zones[zone_num][1] - midpoint) > 0 else 0
                 return round(float(min_val + (max_val - min_val) * normalized_zone_depth), 2)
-        
+
         elif trend == "RM": # Random
             return round(random.uniform(min_val, max_val), 2)
 
