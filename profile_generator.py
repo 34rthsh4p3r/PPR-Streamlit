@@ -10,23 +10,23 @@ class ProfileGenerator:
         self.custom_ranges = {}  # Store custom ranges
         #self.zones = [1, 2, 3, 4, 5] #Removed, using dynamic zones now
 
-    def assign_depths_to_zones(self, depth_values, zone_percentages):
+    def assign_depths_to_zones(self, depth_choice, zone_percentages):
         """Assigns depths to zones based on percentages."""
         zones = {}
         current_depth = 0
         for i, percentage in enumerate(zone_percentages):
-            zone_end_index = int(len(depth_values) * (sum(zone_percentages[:i+1]) / 100))  # Calculate index
-            zone_end = depth_values[min(zone_end_index, len(depth_values) -1)] #Get value for the index, prevent error
+            zone_end_index = int(len(depth_choice) * (sum(zone_percentages[:i+1]) / 100))  # Calculate index
+            zone_end = depth_choice[min(zone_end_index, len(depth_choice) -1)] #Get value for the index, prevent error
 
             zones[i + 1] = (current_depth, zone_end)
             current_depth = zone_end
         return zones
 
-    def generate_data(self, depth_values, zones, base_type, env_type):
+    def generate_data(self, depth_choice, zones, base_type, env_type):
         """Generates the data for the table."""
         data = []
 
-        for d in depth_values:
+        for d in depth_choice:
             zone_num = None
             for z, (start, end) in zones.items():
                 if start <= d <= end:
@@ -46,7 +46,7 @@ class ProfileGenerator:
             for param in all_params:
                 if param in ranges:
                     min_val, max_val, trend = ranges[param]
-                    row[param] = self.generate_value(d, depth_values[-1], min_val, max_val, trend, param, zone_num, zones, data)  # depth_values[-1] is max_depth
+                    row[param] = self.generate_value(d, depth_choice[-1], min_val, max_val, trend, param, zone_num, zones, data)  # depth_choice[-1] is max_depth
                 else:
                     row[param] = 0
 
@@ -57,7 +57,7 @@ class ProfileGenerator:
                     ranges["OM"][0], ranges["OM"][1], ranges["OM"][2],
                     ranges["CC"][0], ranges["CC"][1], ranges["CC"][2],
                     ranges["IM"][0], ranges["IM"][1], ranges["IM"][2],
-                    d, depth_values[-1] #max_depth
+                    d, depth_choice[-1] #max_depth
                 )
             if "Clay" not in ranges:
                 row["Clay"], row["Silt"], row["Sand"] = 0, 0, 0
@@ -66,7 +66,7 @@ class ProfileGenerator:
                     ranges["Clay"][0], ranges["Clay"][1], ranges["Clay"][2],
                     ranges["Silt"][0], ranges["Silt"][1], ranges["Silt"][2],
                     ranges["Sand"][0], ranges["Sand"][1], ranges["Sand"][2],
-                    d, depth_values[-1] #max_depth
+                    d, depth_choice[-1] #max_depth
                 )
             data.append(row)
         return data
@@ -184,13 +184,8 @@ class ProfileGenerator:
     def generate_profile(self, depth_choice, base_type, env_type):
         """Generates the paleo profile based on user selections."""
 
-        depth_ranges = {1: (50, 100), 2: (100, 200), 3: (200, 300), 4: (300, 400), 5: (400, 500), 6: (500, 600)}
-        min_depth, max_depth = depth_ranges[depth_choice]
-        depth = random.randrange(min_depth, max_depth + 1, 2)
-
-        zone_percentages = self.generate_unique_zone_percentages()
-        zones = self.assign_depths_to_zones(depth, zone_percentages)
-        data = self.generate_data(depth, zones, base_type, env_type)
+        zones = self.assign_depths_to_zones(depth_choice, zone_percentages)
+        data = self.generate_data(depth_choice, zones, base_type, env_type)
         return data
 
     def generate_sum_to_100(self, min1, max1, trend1, min2, max2, trend2, min3, max3, trend3, d, depth):
