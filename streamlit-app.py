@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 from profile_generator import ProfileGenerator
 import pandas as pd
@@ -17,12 +16,8 @@ st.set_page_config(
 
 def home_page():
     """
-    Displays the Home page for the PPR application, including project
-    description, usage instructions, and other relevant information.
+    Displays the Home page for the PPR application.
     """
-
-    # Display banner image (replace 'banner.png' or 'screenshot.png' with your image)
-    # st.image("screenshot.png", use_container_width=True) # Uncomment if you have an image
 
     st.title("PPR - Paleo Profile Randomizer")
     st.markdown("""
@@ -32,29 +27,26 @@ def home_page():
     st.markdown("---")
     st.markdown("""
 
-PPR, a Python application, generates synthetic paleoecological profile data, simulating the information retrieved from sediment cores.  This tool enables users to investigate the influence of various environmental and geological factors on sediment record composition.  Its utility spans several areas, including education, where it can teach students about paleoecology; data analysis, by generating datasets for testing methods; hypothesis generation, through exploration of parameter combinations; data interpretation practice, allowing for the development of interpretation skills; model development, by facilitating the adaptation of algorithms for complex models; and demonstration and presentation, enabling the creation of data visualizations.
+PPR, a Python application, generates synthetic paleoecological profile data.
+It allows users to investigate various environmental and geological factors.
+Its utility spans education, data analysis, hypothesis generation, data interpretation, model development, and presentation.
 The application generates data based on user-selected parameters:
 
 *   **Depth:** User-defined depth range with 2 cm intervals.
-*   **Zones:** Multiple distinct zones with randomly assigned percentages (each zone representing a custom % of the total depth).
-*   **Base Type:** Geological base type (Rock, Sand, Paleosol, or Lake Sediment).
-*   **Environment Type:** Paleoenvironment (Lake, Peatland, or Wetland).
+*   **Zones:** Multiple distinct zones with user assigned percentages.
 *   **Parameters:** A comprehensive set of parameters, including:
     *   Loss on Ignition: Organic Matter (OM), Carbonate Content (CC), Inorganic Matter (IM)
-    *   Magnetic Susceptibility (MS)
     *   Grain size: Clay, Silt, Sand percentages
     *   Water-soluble geochemical concentrations: Ca, Mg, Na, K
     *   Charcoal abundances
     *   Arboreal pollen (AP) and Non arboreal pollen (NAP) abundances
     *   Mollusc abundances: Warm-loving, Cold-resistant
 
-Data generation is not purely random. Values follow trends (increasing, decreasing, stagnant, sporadic, etc.) that are typical of real-world paleoecological datasets, providing a more realistic simulation. The generated data is displayed in a scrollable table and a diagram within the application and can be exported as a CSV, Excel, PNG or SVG file.
+Values follow trends (increasing, decreasing, stagnant, sporadic, etc.).
+The generated data can be exported as CSV, Excel, PNG or SVG.
 """)
 
-    # Footer (remains the same)
     st.markdown("---")
-
-# profile_generation_page() function in app.py
 
 def profile_generation_page():
     st.title("Profile Generation")
@@ -70,9 +62,9 @@ def profile_generation_page():
 
     if max_depth <= min_depth:
           st.sidebar.error("Maximum depth must be greater than minimum depth.")
-          return  # Exit the function if depth is invalid
+          return
 
-    depth = list(range(min_depth, max_depth + 1, 2))
+    depth_choice = list(range(min_depth, max_depth + 1, 2))
 
     # Number of Zones
     num_zones = st.sidebar.number_input("Number of Zones", min_value=1, max_value=10, value=5, step=1)
@@ -84,29 +76,20 @@ def profile_generation_page():
         percentage = st.sidebar.number_input(f"Zone {i+1} Percentage (0-{remaining_percentage}%)", min_value=0, max_value=remaining_percentage, value=random.randint(5,min(20,remaining_percentage)), step=1)
         zone_percentages.append(percentage)
         remaining_percentage -= percentage
-    zone_percentages.append(remaining_percentage)  # Last zone takes the remainder
+    zone_percentages.append(remaining_percentage)
 
-    st.sidebar.write(f"Zone {num_zones}: {remaining_percentage}%") #Show last zone %
+    st.sidebar.write(f"Zone {num_zones}: {remaining_percentage}%")
     if sum(zone_percentages) != 100:
         st.sidebar.error("Zone percentages must sum to 100%.")
-        return #Exit
-
-    # Base Type Selection
-    base_type = st.sidebar.selectbox("Choose a base type:",
-                                        options=["Rock", "Sand", "Paleosol", "Lake sediment"])
-
-    # Environment Type Selection
-    env_type = st.sidebar.selectbox("Choose an environment type:",
-                                        options=["Lake", "Peatland", "Wetland"])
-
+        return
     # --- Generate Profile Button ---
     if st.sidebar.button("Generate Profile"):
         with st.spinner("Generating profile..."):
-            data = profile_generator.generate_profile(depth_choice, base_type, env_type)  # Pass base_type and env_type
+            data = profile_generator.generate_profile(depth_choice, zone_percentages)
             if data:
-                st.session_state.data = data  # Store data in session state
+                st.session_state.data = data
                 df = pd.DataFrame(data)
-                st.dataframe(df.style.format("{:.0f}"))  # Format to 0 decimal places
+                st.dataframe(df.style.format("{:.0f}"))
 
                 # --- Display Diagram ---
                 fig = profile_generator.generate_diagram(data)
@@ -114,7 +97,8 @@ def profile_generation_page():
             else:
                 st.warning("No data generated. Please check your input parameters.")
 
-# --- Advanced Parameter Adjustment (Sliders and Dropdowns) ---
+
+    # --- Advanced Parameter Adjustment (Sliders and Dropdowns) ---
     st.sidebar.header("Advanced Parameter Adjustment")
 
     if 'data' in st.session_state:  # Only show if data has been generated
@@ -122,7 +106,7 @@ def profile_generation_page():
         selected_zone = selected_zone_index  # Corrected zone selection
 
 
-        ranges = profile_generator.get_parameter_ranges(base_type, env_type, selected_zone)
+        ranges = profile_generator.get_parameter_ranges(selected_zone)
 
         updated_ranges = {}
 
@@ -149,8 +133,9 @@ def profile_generation_page():
             updated_ranges[param] = (new_min, new_max, selected_trend)
 
         if st.sidebar.button("Apply Custom Ranges"):
-            profile_generator.custom_ranges[(selected_zone, base_type, env_type)] = updated_ranges
+            profile_generator.custom_ranges[selected_zone] = updated_ranges
             st.sidebar.success("Custom ranges applied!")
+
 
        # --- Save Data ---
     if 'data' in st.session_state and st.session_state.data:
@@ -204,7 +189,7 @@ def profile_generation_page():
                     file_name="paleo_profile_diagram.svg",
                     mime="image/svg+xml",
                 )
-            
+
 def main():
     """Main function to handle page navigation."""
 
