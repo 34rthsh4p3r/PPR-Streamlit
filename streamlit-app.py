@@ -67,7 +67,8 @@ def profile_generation_page():
     # --- Generate Profile Button ---
     if st.sidebar.button("Generate"):
         with st.spinner("Generating profile..."):
-            data = profile_generator.generate_profile(depth_choice, base_type, env_type)  # Pass base_type and env_type
+            zone_percentages = profile_generator.generate_unique_zone_percentages()  # Call the method
+            data = profile_generator.generate_profile(depth_choice, zone_percentages, base_type, env_type) # Pass zone_percentages
             if data:
                 st.session_state.data = data  # Store data in session state
                 df = pd.DataFrame(data)
@@ -79,7 +80,7 @@ def profile_generation_page():
             else:
                 st.warning("No data generated. Please check your input parameters.")
 
-   # Depth Selection
+    # Depth Selection
     min_depth = st.sidebar.number_input("Minimum Depth", min_value=0, max_value=1000, value=0, step=1)
     max_depth = st.sidebar.number_input("Maximum Depth", min_value=0, max_value=1000, value=1000, step=1)
 
@@ -88,6 +89,7 @@ def profile_generation_page():
           return  # Exit the function if depth is invalid
 
     depth_choice = list(range(min_depth, max_depth + 1, 2)) # Define depth_choice
+    num_zones = len(profile_generator.zones) # Get num_zones dynamically
 
         # Base Type Selection
     base_type = st.sidebar.selectbox("Choose a base type:",
