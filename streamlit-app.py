@@ -139,8 +139,8 @@ def profile_generation_page():
                 st.warning("No data generated. Please check your input parameters.")
 
     # --- Advanced Parameter Adjustment (Sliders) ---
-    st.header("Advanced Parameter Adjustment")
-    selected_zone = st.selectbox("Select Zone:", options=profile_generator.zones)
+    st.sidebar.header("Advanced Parameter Adjustment")
+    selected_zone = st.sidebar.selectbox("Select Zone:", options=profile_generator.zones)
     selected_base_type = st.sidebar.selectbox("Select Base Type (for Zone 5):", options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select") # Moved to sidebar
     selected_env_type = st.sidebar.selectbox("Select Env. Type (for Zones 1-4):", options=["Lake", "Peatland", "Wetland"], key="env_type_select") # Moved to sidebar
     ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
