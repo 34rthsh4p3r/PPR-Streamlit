@@ -70,9 +70,26 @@ def profile_generation_page():
 
     if max_depth <= min_depth:
           st.sidebar.error("Maximum depth must be greater than minimum depth.")
-          depth_choice = None
-    else:
-        depth_choice = random.randint(min_depth, max_depth)
+          return  # Exit the function if depth is invalid
+
+    depth = list(range(min_depth, max_depth + 1, 2))
+
+    # Number of Zones
+    num_zones = st.sidebar.number_input("Number of Zones", min_value=1, max_value=10, value=5, step=1)
+
+    # Zone Percentages
+    zone_percentages = []
+    remaining_percentage = 100
+    for i in range(num_zones - 1):
+        percentage = st.sidebar.number_input(f"Zone {i+1} Percentage (0-{remaining_percentage}%)", min_value=0, max_value=remaining_percentage, value=random.randint(5,min(20,remaining_percentage)), step=1)
+        zone_percentages.append(percentage)
+        remaining_percentage -= percentage
+    zone_percentages.append(remaining_percentage)  # Last zone takes the remainder
+
+    st.sidebar.write(f"Zone {num_zones}: {remaining_percentage}%") #Show last zone %
+    if sum(zone_percentages) != 100:
+        st.sidebar.error("Zone percentages must sum to 100%.")
+        return #Exit
 
     # Base Type Selection
     base_type = st.sidebar.selectbox("Choose a base type:",
@@ -97,30 +114,43 @@ def profile_generation_page():
             else:
                 st.warning("No data generated. Please check your input parameters.")
 
-    # --- Advanced Parameter Adjustment (Sliders) ---
+# --- Advanced Parameter Adjustment (Sliders and Dropdowns) ---
     st.sidebar.header("Advanced Parameter Adjustment")
-    selected_zone = st.sidebar.selectbox("Select Zone:", options=profile_generator.zones)
-    selected_base_type = st.sidebar.selectbox("Select Base Type (for Zone 5):", options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select") # Moved to sidebar
-    selected_env_type = st.sidebar.selectbox("Select Env. Type (for Zones 1-4):", options=["Lake", "Peatland", "Wetland"], key="env_type_select") # Moved to sidebar
-    ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
 
-    updated_ranges = {}
-    for param, (min_val, max_val, trend) in ranges.items():
-        if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
-            new_min, new_max = st.slider(
-                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                0.0, 100.0, (float(min_val), float(max_val)), step=0.1
-            )
-        else:
-             new_min, new_max = st.slider(
-                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
-            )
-        updated_ranges[param] = (new_min, new_max, trend)
+    if 'data' in st.session_state:  # Only show if data has been generated
+        selected_zone_index = st.sidebar.selectbox("Select Zone:", options=list(range(1, num_zones + 1)))
+        selected_zone = selected_zone_index  # Corrected zone selection
 
-    if st.button("Apply Custom Ranges"):
-        profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges
-        st.success("Custom ranges applied!")
+
+        ranges = profile_generator.get_parameter_ranges(base_type, env_type, selected_zone)
+
+        updated_ranges = {}
+
+        for param, (min_val, max_val, _) in ranges.items():  # Unpack only min, max, ignore trend
+            trend_options = ["SP", "UP", "DN", "LF", "HF", "SL", "SH", "UD", "DU", "RM"]  # Define trend options
+
+            if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
+                new_min, new_max = st.sidebar.slider(
+                    f"{param} Range (Zone {selected_zone})",
+                    0.0, 100.0, (float(min_val), float(max_val)), step=0.1
+                )
+            else:
+                new_min, new_max = st.sidebar.slider(
+                    f"{param} Range (Zone {selected_zone})",
+                    0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
+                )
+
+            selected_trend = st.sidebar.selectbox(
+                f"{param} Trend (Zone {selected_zone})",
+                options=trend_options,
+                index=trend_options.index(ranges[param][2]) if ranges[param][2] in trend_options else 0  # Set default selection
+            )
+
+            updated_ranges[param] = (new_min, new_max, selected_trend)
+
+        if st.sidebar.button("Apply Custom Ranges"):
+            profile_generator.custom_ranges[(selected_zone, base_type, env_type)] = updated_ranges
+            st.sidebar.success("Custom ranges applied!")
 
        # --- Save Data ---
     if 'data' in st.session_state and st.session_state.data:
