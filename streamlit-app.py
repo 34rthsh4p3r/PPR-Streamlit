@@ -64,6 +64,21 @@ def profile_generation_page():
     # --- Sidebar for Input ---
     st.sidebar.header("Input Parameters")
 
+    # --- Generate Profile Button ---
+    if st.sidebar.button("Generate"):
+        with st.spinner("Generating profile..."):
+            data = profile_generator.generate_profile(depth_choice, base_type, env_type)  # Pass base_type and env_type
+            if data:
+                st.session_state.data = data  # Store data in session state
+                df = pd.DataFrame(data)
+                st.dataframe(df.style.format("{:.0f}"))  # Format to 0 decimal places
+
+                # --- Display Diagram ---
+                fig = profile_generator.generate_diagram(data)
+                st.pyplot(fig)
+            else:
+                st.warning("No data generated. Please check your input parameters.")
+
    # Depth Selection
     min_depth = st.sidebar.number_input("Minimum Depth", min_value=0, max_value=1000, value=0, step=1)
     max_depth = st.sidebar.number_input("Maximum Depth", min_value=0, max_value=1000, value=1000, step=1)
@@ -86,21 +101,6 @@ def profile_generation_page():
     # Environment Type Selection
     env_type = st.sidebar.selectbox("Choose an environment type:",
                                         options=["Lake", "Peatland", "Wetland"])
-
-    # --- Generate Profile Button ---
-    if st.sidebar.button("Generate Profile"):
-        with st.spinner("Generating profile..."):
-            data = profile_generator.generate_profile(depth_choice, base_type, env_type)  # Pass base_type and env_type
-            if data:
-                st.session_state.data = data  # Store data in session state
-                df = pd.DataFrame(data)
-                st.dataframe(df.style.format("{:.0f}"))  # Format to 0 decimal places
-
-                # --- Display Diagram ---
-                fig = profile_generator.generate_diagram(data)
-                st.pyplot(fig)
-            else:
-                st.warning("No data generated. Please check your input parameters.")
 
 # --- Advanced Parameter Adjustment (Sliders and Dropdowns) ---
     st.sidebar.header("Advanced Parameter Adjustment")
