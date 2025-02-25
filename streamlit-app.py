@@ -31,12 +31,11 @@ def home_page():
             """)
     st.markdown("""
 
-PPR (Paleo Profile Randomizer) is a Python application designed to generate synthetic paleoecological profile data, simulating the information obtained from sediment cores. This tool allows users to explore how different environmental and geological factors influence the composition of sediment records. PPR is valuable for educational purposes, data analysis testing, hypothesis generation, and model development in paleoecology.
-
+PPR, a Python application, generates synthetic paleoecological profile data, simulating the information retrieved from sediment cores.  This tool enables users to investigate the influence of various environmental and geological factors on sediment record composition.  Its utility spans several areas, including education, where it can teach students about paleoecology; data analysis, by generating datasets for testing methods; hypothesis generation, through exploration of parameter combinations; data interpretation practice, allowing for the development of interpretation skills; model development, by facilitating the adaptation of algorithms for complex models; and demonstration and presentation, enabling the creation of data visualizations.
 The application generates data based on user-selected parameters:
 
 *   **Depth:** User-defined depth range with 2 cm intervals.
-*   **Zones:** Five distinct zones with randomly assigned percentages (each zone representing 10-60% of the total depth).
+*   **Zones:** Multiple distinct zones with randomly assigned percentages (each zone representing a custom % of the total depth).
 *   **Base Type:** Geological base type (Rock, Sand, Paleosol, or Lake Sediment).
 *   **Environment Type:** Paleoenvironment (Lake, Peatland, or Wetland).
 *   **Parameters:** A comprehensive set of parameters, including:
@@ -45,8 +44,7 @@ The application generates data based on user-selected parameters:
     *   Grain size: Clay, Silt, Sand percentages
     *   Water-soluble geochemical concentrations: Ca, Mg, Na, K
     *   Charcoal abundances
-    *   Arboreal pollen (AP) abundances
-    *   Non arboreal pollen (NAP) abundances
+    *   Arboreal pollen (AP) and Non arboreal pollen (NAP) abundances
     *   Mollusc abundances: Warm-loving, Cold-resistant
 
 Data generation is not purely random. Values follow trends (increasing, decreasing, stagnant, sporadic, etc.) that are typical of real-world paleoecological datasets, providing a more realistic simulation. The generated data is displayed in a scrollable table and a diagram within the application and can be exported as a CSV, Excel, PNG or SVG file.
