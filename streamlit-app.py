@@ -50,17 +50,6 @@ The application generates data based on user-selected parameters:
 Data generation is not purely random. Values follow trends (increasing, decreasing, stagnant, sporadic, etc.) that are typical of real-world paleoecological datasets, providing a more realistic simulation. The generated data is displayed in a scrollable table and a diagram within the application and can be exported as a CSV, Excel, PNG or SVG file.
 """)
 
-
-    st.markdown("---")
-    st.subheader("Why PPR is Useful")  # Added this section back
-    st.markdown("""
-*   **Educational Tool:** Ideal for teaching students about paleoecology.
-*   **Data Simulation:** Generate datasets for testing analysis methods.
-*   **Hypothesis Generation:** Explore parameter combinations.
-*   **Data Interpretation Practice:** Develop interpretation skills.
-*   **Model Development:** Adapt algorithms for complex models.
-*   **Demonstration and Presentation:** Create visualizations of data.
-""")
     # Footer (remains the same)
     st.markdown("---")
 
