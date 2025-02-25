@@ -97,8 +97,6 @@ Contributions are welcome! Fork the repository, create a branch, make changes, a
 
 # profile_generation_page() function in app.py
 
-# profile_generation_page() function in app.py
-
 def profile_generation_page():
     st.title("Profile Generation")
 
@@ -117,49 +115,14 @@ def profile_generation_page():
     else:
         depth_choice = random.randint(min_depth, max_depth)
 
-
-    # Base Type Selection
-    base_type = st.sidebar.selectbox("Choose a base type:",
-                                        options=["Rock", "Sand", "Paleosol", "Lake sediment"])
-
-    # Environment Type Selection
-    env_type = st.sidebar.selectbox("Choose an environment type:",
-                                        options=["Lake", "Peatland", "Wetland"])
-
-        # --- Advanced Parameter Adjustment (Sliders) ---
-    st.sidebar.header("Advanced Parameter Adjustment")
-    selected_zone = st.sidebar.selectbox("Select Zone:", options=profile_generator.zones) #Using all zones for simplicity
-    selected_base_type = st.sidebar.selectbox("Select Base Type (for Zone 5):", options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select") #Added key
-    selected_env_type = st.sidebar.selectbox("Select Env. Type (for Zones 1-4):", options=["Lake", "Peatland", "Wetland"], key = "env_type_select") #Added key
-    ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
-
-    updated_ranges = {}
-    for param, (min_val, max_val, trend) in ranges.items():
-        if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
-            new_min, new_max = st.sidebar.slider(
-                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                0.0, 100.0, (float(min_val), float(max_val)), step=0.1
-            )
-        else:
-             new_min, new_max = st.sidebar.slider(
-                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
-            )
-        updated_ranges[param] = (new_min, new_max, trend) #Keep trend
-
-    if st.sidebar.button("Apply Custom Ranges"):
-        profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges # Pass base/env
-        st.sidebar.success("Custom ranges applied!")
-
     # --- Generate Profile Button ---
     if st.sidebar.button("Generate Profile"):
         with st.spinner("Generating profile..."):
-            data = profile_generator.generate_profile(depth_choice, base_type, env_type) # Use the numeric value.
+            data = profile_generator.generate_profile(depth_choice, base_type, env_type)  # Use the numeric value.
             if data:
                 st.session_state.data = data  # Store data in session state
                 df = pd.DataFrame(data)
-                st.dataframe(df.style.format("{:.2f}"))  # Format to 2 decimal places
-
+                st.dataframe(df.style.format("{:.0f}"))  # Format to 0 decimal places
 
                 # --- Display Diagram ---
                 fig = profile_generator.generate_diagram(data)
@@ -167,6 +130,30 @@ def profile_generation_page():
             else:
                 st.warning("No data generated. Please check your input parameters.")
 
+    # --- Advanced Parameter Adjustment (Sliders) ---
+    st.header("Advanced Parameter Adjustment")  # Moved back to main area
+    selected_zone = st.selectbox("Select Zone:", options=profile_generator.zones)
+    selected_base_type = st.selectbox("Select Base Type (for Zone 5):", options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select")
+    selected_env_type = st.selectbox("Select Env. Type (for Zones 1-4):", options=["Lake", "Peatland", "Wetland"], key="env_type_select")
+    ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
+
+    updated_ranges = {}
+    for param, (min_val, max_val, trend) in ranges.items():
+        if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
+            new_min, new_max = st.slider(
+                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                0.0, 100.0, (float(min_val), float(max_val)), step=0.1
+            )
+        else:
+             new_min, new_max = st.slider(
+                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
+            )
+        updated_ranges[param] = (new_min, new_max, trend)
+
+    if st.button("Apply Custom Ranges"):  # Moved back to main area
+        profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges
+        st.success("Custom ranges applied!")
 
        # --- Save Data ---
     if 'data' in st.session_state and st.session_state.data:
@@ -220,6 +207,7 @@ def profile_generation_page():
                     file_name="paleo_profile_diagram.svg",
                     mime="image/svg+xml",
                 )
+            
 def main():
     """Main function to handle page navigation."""
 
