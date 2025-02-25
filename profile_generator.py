@@ -29,7 +29,7 @@ class ProfileGenerator:
         zones = {}
         current_depth = 0
         for i, percentage in enumerate(zone_percentages):
-            zone_end = current_depth + (depth * percentage / 100)
+            zone_end = current_depth + (len(depth_choice)*2 * percentage / 100) # Use len(depth_choice)*2 to calculate total depth.
             zones[i + 1] = (current_depth, float(round(zone_end / 2) * 2))
             current_depth = float(round(zone_end / 2) * 2)
         return zones
@@ -193,7 +193,7 @@ class ProfileGenerator:
             return round(random.uniform(min_val, max_val), 2)
 
 
-    def generate_profile(self, depth_choice, base_type, env_type):
+    def generate_profile(self, depth_choice, zone_percentages, base_type, env_type):
         """Generates the paleo profile based on user selections."""
 
         zones = self.assign_depths_to_zones(depth_choice, zone_percentages)
