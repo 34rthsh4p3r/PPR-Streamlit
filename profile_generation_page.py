@@ -12,43 +12,44 @@ def profile_generation_page():
     st.title("Profile Generation")
     st.markdown("### Parameter Adjustment")  # Section header
 
-        # --- Input Parameters ---  (Now in col2)
-        st.markdown("**Depth Selection**") # More descriptive title
-        min_depth = st.number_input("Minimum Depth", min_value=0, max_value=1000, value=0, step=1)
-        max_depth = st.number_input("Maximum Depth", min_value=0, max_value=1000, value=1000, step=1)
+    # --- Input Parameters ---  (Now in col2)
+    st.markdown("**Depth Selection**") # More descriptive title
+    min_depth = st.number_input("Minimum Depth", min_value=0, max_value=1000, value=0, step=1)
+    max_depth = st.number_input("Maximum Depth", min_value=0, max_value=1000, value=1000, step=1)
 
-        if max_depth <= min_depth:
-              st.error("Maximum depth must be greater than minimum depth.")
-              depth_choice = None
-        else:
+    if max_depth <= min_depth:
+            st.error("Maximum depth must be greater than minimum depth.")
+            depth_choice = None
+    else:
             depth_choice = random.randint(min_depth, max_depth)
 
-        # --- Advanced Parameter Adjustment (Sliders) --- (Now in col2)
-        st.markdown("**Advanced Parameter Adjustment**")
-        selected_zone = st.selectbox("Select Zone:", options=profile_generator.zones)  # Using all zones for simplicity
-        selected_base_type = st.selectbox("Select Base Type (for Zone 5):",
-                                          options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select")  # Added key
-        selected_env_type = st.selectbox("Select Env. Type (for Zones 1-4):",
-                                         options=["Lake", "Peatland", "Wetland"], key="env_type_select")  # Added key
-        ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
+    # --- Advanced Parameter Adjustment (Sliders) --- (Now in col2)
+    st.markdown("**Advanced Parameter Adjustment**")
+    selected_zone = st.selectbox("Select Zone:", options=profile_generator.zones)  # Using all zones for simplicity
+    selected_base_type = st.selectbox("Select Base Type (for Zone 5):",
+                                        options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select")  # Added key
+    selected_env_type = st.selectbox("Select Env. Type (for Zones 1-4):",
+                                        options=["Lake", "Peatland", "Wetland"], key="env_type_select")  # Added key
+    ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
 
-        updated_ranges = {}
-        for param, (min_val, max_val, trend) in ranges.items():
-            if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
+    updated_ranges = {}
+    for param, (min_val, max_val, trend) in ranges.items():
+        if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
                 new_min, new_max = st.slider(
                     f"{param} Range (Zone {selected_zone}, Trend: {trend})",
                     0.0, 100.0, (float(min_val), float(max_val)), step=0.1
                 )
-            else:
+        else:
                 new_min, new_max = st.slider(
                     f"{param} Range (Zone {selected_zone}, Trend: {trend})",
                     0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
                 )
             updated_ranges[param] = (new_min, new_max, trend)  # Keep trend
 
-        if st.button("Apply Custom Ranges"):
+    if st.button("Apply Custom Ranges"):
             profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges  # Pass base/env
             st.success("Custom ranges applied!")
+    
     profile_generator = ProfileGenerator()
 
 
