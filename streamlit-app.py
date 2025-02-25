@@ -89,11 +89,6 @@ def profile_generation_page():
 
     depth_choice = list(range(min_depth, max_depth + 1, 2)) # Define depth_choice
 
-    # --- Generate Profile Button ---
-    if st.sidebar.button("Generate Profile"):
-        with st.spinner("Generating profile..."):
-            data = profile_generator.generate_profile(depth_choice, zone_percentages, base_type, env_type)  # Pass parameters
-
         # Base Type Selection
     base_type = st.sidebar.selectbox("Choose a base type:",
                                         options=["Rock", "Sand", "Paleosol", "Lake sediment"])
