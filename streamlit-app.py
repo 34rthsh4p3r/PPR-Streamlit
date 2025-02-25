@@ -146,18 +146,39 @@ def profile_generation_page():
     ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
 
     updated_ranges = {}
-    for param, (min_val, max_val, trend) in ranges.items():
+     # Create two columns for the sliders
+    col1, col2 = st.columns(2)
+
+    # Iterate through parameters and place sliders in columns
+    for i, (param, (min_val, max_val, trend)) in enumerate(ranges.items()):
         if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
-            new_min, new_max = st.slider(
-                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                0.0, 100.0, (float(min_val), float(max_val)), step=0.1
-            )
-        else:
-             new_min, new_max = st.slider(
-                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
-            )
+            if i % 2 == 0:  # Even index: place in col1
+                with col1:
+                    new_min, new_max = st.slider(
+                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                        0.0, 100.0, (float(min_val), float(max_val)), step=0.1
+                    )
+            else:  # Odd index: place in col2
+                with col2:
+                    new_min, new_max = st.slider(
+                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                        0.0, 100.0, (float(min_val), float(max_val)), step=0.1
+                    )
+        else:  # For other parameters (not percentages)
+            if i % 2 == 0:
+                with col1:
+                    new_min, new_max = st.slider(
+                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                        0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
+                    )
+            else:
+                with col2:
+                   new_min, new_max = st.slider(
+                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                        0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
+                    )
         updated_ranges[param] = (new_min, new_max, trend)
+
 
     if st.button("Apply Custom Ranges"):
         profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges
