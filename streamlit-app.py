@@ -101,11 +101,15 @@ def profile_generation_page():
     # --- Sidebar for Input ---
     st.sidebar.header("Input Parameters")
 
-    # Depth Selection
-    depth_choice = st.sidebar.selectbox("Choose a depth:",
-                                        options=[("50-100", 1), ("100-200", 2), ("200-300", 3),
-                                                 ("300-400", 4), ("500-600", 5), ("600-700", 6)],
-                                        format_func=lambda x: x[0])  # Display text, return value
+# Depth Selection
+    min_depth = st.sidebar.number_input("Minimum Depth", min_value=0, max_value=1000, value=0, step=1)
+    max_depth = st.sidebar.number_input("Maximum Depth", min_value=0, max_value=1000, value=1000, step=1)
+    
+    if max_depth <= min_depth:
+          st.sidebar.error("Maximum depth must be greater than minimum depth.")
+          depth_choice = None
+    else:
+        depth_choice = random.randint(min_depth, max_depth)
 
 
     # Base Type Selection
@@ -188,29 +192,28 @@ def profile_generation_page():
             
     # --- Advanced Parameter Adjustment (Sliders) ---
     st.sidebar.header("Advanced Parameter Adjustment")
-    if st.sidebar.checkbox("Enable Advanced Adjustment"):
-        selected_zone = st.sidebar.selectbox("Select Zone:", options=profile_generator.zones) #Using all zones for simplicity
-        selected_base_type = st.sidebar.selectbox("Select Base Type (for Zone 5):", options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select") #Added key
-        selected_env_type = st.sidebar.selectbox("Select Env. Type (for Zones 1-4):", options=["Lake", "Peatland", "Wetland"], key = "env_type_select") #Added key
-        ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
+    selected_zone = st.sidebar.selectbox("Select Zone:", options=profile_generator.zones) #Using all zones for simplicity
+    selected_base_type = st.sidebar.selectbox("Select Base Type (for Zone 5):", options=["Rock", "Sand", "Paleosol", "Lake sediment"], key="base_type_select") #Added key
+    selected_env_type = st.sidebar.selectbox("Select Env. Type (for Zones 1-4):", options=["Lake", "Peatland", "Wetland"], key = "env_type_select") #Added key
+    ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
 
-        updated_ranges = {}
-        for param, (min_val, max_val, trend) in ranges.items():
-            if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
-                new_min, new_max = st.sidebar.slider(
-                    f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                    0, 100, (int(min_val), int(max_val)), step=1
-                )
-            else:
-                new_min, new_max = st.sidebar.slider(
-                    f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                    0, 9999, (int(min_val), int(max_val)), step=1
-                )
-            updated_ranges[param] = (new_min, new_max, trend) #Keep trend
+    updated_ranges = {}
+    for param, (min_val, max_val, trend) in ranges.items():
+        if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
+            new_min, new_max = st.sidebar.slider(
+                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                0.0, 100.0, (float(min_val), float(max_val)), step=0.1
+            )
+        else:
+             new_min, new_max = st.sidebar.slider(
+                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
+            )
+        updated_ranges[param] = (new_min, new_max, trend) #Keep trend
 
-        if st.sidebar.button("Apply Custom Ranges"):
-            profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges # Pass base/env
-            st.sidebar.success("Custom ranges applied!")
+    if st.sidebar.button("Apply Custom Ranges"):
+        profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges # Pass base/env
+        st.sidebar.success("Custom ranges applied!")
 
 def main():
     """Main function to handle page navigation."""
