@@ -3,6 +3,8 @@ import streamlit as st
 from profile_generator import ProfileGenerator
 import pandas as pd
 import matplotlib.pyplot as plt
+import openpyxl
+import random
 import io
 import os
 
