@@ -29,6 +29,7 @@ def home_page():
         [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/)
         [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
             """)
+    st.markdown("---")
     st.markdown("""
 
 PPR, a Python application, generates synthetic paleoecological profile data, simulating the information retrieved from sediment cores.  This tool enables users to investigate the influence of various environmental and geological factors on sediment record composition.  Its utility spans several areas, including education, where it can teach students about paleoecology; data analysis, by generating datasets for testing methods; hypothesis generation, through exploration of parameter combinations; data interpretation practice, allowing for the development of interpretation skills; model development, by facilitating the adaptation of algorithms for complex models; and demonstration and presentation, enabling the creation of data visualizations.
