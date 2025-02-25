@@ -43,7 +43,7 @@ PPR (Paleo Profile Randomizer) is a Python application designed to generate synt
 
 The application generates data based on user-selected parameters:
 
-*   **Depth:** User-defined depth range (e.g., 50-700 cm) with 2 cm intervals.
+*   **Depth:** User-defined depth range with 2 cm intervals.
 *   **Zones:** Five distinct zones with randomly assigned percentages (each zone representing 10-60% of the total depth).
 *   **Base Type:** Geological base type (Rock, Sand, Paleosol, or Lake Sediment).
 *   **Environment Type:** Paleoenvironment (Lake, Peatland, or Wetland).
@@ -57,7 +57,7 @@ The application generates data based on user-selected parameters:
     *   Non arboreal pollen (NAP) abundances
     *   Mollusc abundances: Warm-loving, Cold-resistant
 
-Data generation is not purely random. Values follow trends (increasing, decreasing, stagnant, sporadic, etc.) that are typical of real-world paleoecological datasets, providing a more realistic simulation. The generated data is displayed in a scrollable table within the application and can be exported as a CSV file.
+Data generation is not purely random. Values follow trends (increasing, decreasing, stagnant, sporadic, etc.) that are typical of real-world paleoecological datasets, providing a more realistic simulation. The generated data is displayed in a scrollable table and a diagram within the application and can be exported as a CSV, Excel, PNG or SVG file.
 """)
 
 
@@ -71,31 +71,8 @@ Data generation is not purely random. Values follow trends (increasing, decreasi
 *   **Model Development:** Adapt algorithms for complex models.
 *   **Demonstration and Presentation:** Create visualizations of data.
 """)
-    st.markdown("---")
-    st.subheader("Contributing")
-    st.markdown("""
-Contributions are welcome! Fork the repository, create a branch, make changes, and submit a pull request.
-""")
-
-    st.markdown("---")
-    st.subheader("Maintainer")
-    st.markdown("""
-*   [34rthsh4p3r](https://github.com/34rthsh4p3r)
-""")
-
-    st.markdown("---")
-    st.subheader("Acknowledgments")
-    st.markdown("Developed with assistance from Google AI Studio.")
-
-    st.markdown("---")
-    st.subheader("License")
-    st.markdown("Licensed under the GNU General Public License v3.0.")
-
-
     # Footer (remains the same)
     st.markdown("---")
-
-# profile_generation_page() function in app.py
 
 def profile_generation_page():
     st.title("Profile Generation")
@@ -146,39 +123,18 @@ def profile_generation_page():
     ranges = profile_generator.get_parameter_ranges(selected_base_type, selected_env_type, selected_zone)
 
     updated_ranges = {}
-     # Create two columns for the sliders
-    col1, col2 = st.columns(2)
-
-    # Iterate through parameters and place sliders in columns
-    for i, (param, (min_val, max_val, trend)) in enumerate(ranges.items()):
+    for param, (min_val, max_val, trend) in ranges.items():
         if param in ["OM", "IM", "CC", "Clay", "Silt", "Sand"]:
-            if i % 2 == 0:  # Even index: place in col1
-                with col1:
-                    new_min, new_max = st.slider(
-                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                        0.0, 100.0, (float(min_val), float(max_val)), step=0.1
-                    )
-            else:  # Odd index: place in col2
-                with col2:
-                    new_min, new_max = st.slider(
-                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                        0.0, 100.0, (float(min_val), float(max_val)), step=0.1
-                    )
-        else:  # For other parameters (not percentages)
-            if i % 2 == 0:
-                with col1:
-                    new_min, new_max = st.slider(
-                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                        0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
-                    )
-            else:
-                with col2:
-                   new_min, new_max = st.slider(
-                        f"{param} Range (Zone {selected_zone}, Trend: {trend})",
-                        0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
-                    )
+            new_min, new_max = st.slider(
+                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                0.0, 100.0, (float(min_val), float(max_val)), step=0.1
+            )
+        else:
+             new_min, new_max = st.slider(
+                f"{param} Range (Zone {selected_zone}, Trend: {trend})",
+                0.0, 2000.0, (float(min_val), float(max_val)), step=0.1
+            )
         updated_ranges[param] = (new_min, new_max, trend)
-
 
     if st.button("Apply Custom Ranges"):
         profile_generator.custom_ranges[(selected_zone, selected_base_type, selected_env_type)] = updated_ranges
