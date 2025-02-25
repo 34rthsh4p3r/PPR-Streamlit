@@ -18,20 +18,26 @@ st.set_page_config(
 def home_page():
     """
     Displays the Home page for the PPR application, including project
-    description, usage instructions, and other relevant information.
+    description, usage instructions, and other relevant information.  The text
+    is formatted to expand to the screen size using Streamlit's layout options.
     """
 
-    # Display banner image (replace 'banner.png' or 'screenshot.png' with your image)
-    # st.image("screenshot.png", use_container_width=True) # Uncomment if you have an image
+    # Use columns to control layout and responsiveness.  This is the key to making
+    # the text expand and reflow nicely.
+    col1, col2, col3 = st.columns([1,8,1])  # Creates three columns. The middle one is much wider.
 
-    st.title("PPR - Paleo Profile Randomizer")
-    st.markdown("""
-        [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/)
-        [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-            """)
-    st.markdown("""
+    with col2:  # Place all content in the wide, central column.
 
-PPR is a Python application designed to generate synthetic paleoecological profile data, simulating the information obtained from sediment cores. This tool allows users to explore how different environmental and geological factors influence the composition of sediment records. PPR is valuable for educational purposes, data analysis testing, hypothesis generation, and model development in paleoecology.
+        # Display banner image (replace 'banner.png' or 'screenshot.png' with your image)
+        # st.image("screenshot.png", use_container_width=True) # Uncomment if you have an image
+
+        st.title("PPR - Paleo Profile Randomizer")
+        st.markdown("""
+            [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/)
+            [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+                """)
+        st.markdown("""
+PPR (Paleo Profile Randomizer) is a Python application designed to generate synthetic paleoecological profile data, simulating the information obtained from sediment cores. This tool allows users to explore how different environmental and geological factors influence the composition of sediment records. PPR is valuable for educational purposes, data analysis testing, hypothesis generation, and model development in paleoecology.
 
 The application generates data based on user-selected parameters:
 
@@ -50,23 +56,26 @@ The application generates data based on user-selected parameters:
     *   Mollusc abundances: Warm-loving, Cold-resistant
 
 Data generation is not purely random. Values follow trends (increasing, decreasing, stagnant, sporadic, etc.) that are typical of real-world paleoecological datasets, providing a more realistic simulation. The generated data is displayed in a scrollable table and a diagram within the application and can be exported as a CSV, Excel, PNG or SVG file.
-""")
+    """)
 
 
-    st.markdown("---")
-    st.subheader("Why PPR is Useful")  # Added this section back
-    st.markdown("""
+        st.markdown("---")
+        st.subheader("Why PPR is Useful")  # Added this section back
+        st.markdown("""
 *   **Educational Tool:** Ideal for teaching students about paleoecology.
 *   **Data Simulation:** Generate datasets for testing analysis methods.
 *   **Hypothesis Generation:** Explore parameter combinations.
 *   **Data Interpretation Practice:** Develop interpretation skills.
 *   **Model Development:** Adapt algorithms for complex models.
 *   **Demonstration and Presentation:** Create visualizations of data.
-""")
-    # Footer (remains the same)
-    st.markdown("---")
+    """)
+        # Footer (remains the same)
+        st.markdown("---")
 
-# profile_generation_page() function in app.py
+# Example usage (if this is your main script):
+if __name__ == "__main__":
+    st.set_page_config(layout="wide") # Set the layout to wide for the entire app
+    home_page()
 
 def profile_generation_page():
     st.title("Profile Generation")
